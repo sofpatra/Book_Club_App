@@ -5,26 +5,16 @@ from oauth2client.service_account import ServiceAccountCredentials
 import pandas as pd
 from collections import defaultdict
 
+# Load credentials from Streamlit secrets
+credentials_info = json.loads(st.secrets["GOOGLE_SHEET_CREDENTIALS"]["credentials"])
+
+#Google Sheets authentication
 # Google Sheets authentication
 def connect_to_gsheet():
     scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
-    creds = ServiceAccountCredentials.from_json_keyfile_name("elegant-cipher-453701-r9-52215a8082e7.json", scope)
+    creds = ServiceAccountCredentials.from_json_keyfile_dict(credentials_info, scope)
     client = gspread.authorize(creds)
     return client
-
-
-
-
-# # Load credentials from Streamlit secrets
-# credentials_info = json.loads(st.secrets["GOOGLE_SHEET_CREDENTIALS"]["credentials"])
-
-# Google Sheets authentication
-# # Google Sheets authentication
-# def connect_to_gsheet():
-#     scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
-#     creds = ServiceAccountCredentials.from_json_keyfile_dict(credentials_info, scope)
-#     client = gspread.authorize(creds)
-#     return client
 
 # Load the Google Sheet
 client = connect_to_gsheet()
