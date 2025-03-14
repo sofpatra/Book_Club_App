@@ -7,7 +7,7 @@ from collections import defaultdict
 
 
 # Load credentials from Streamlit secrets
-credentials_info = json.loads(st.secrets["GOOGLE_SHEET_CREDENTIALS"])
+credentials_info = json.loads(st.secrets["GOOGLE_SHEET_CREDENTIALS"]["credentials"])
 
 # Google Sheets authentication
 # Google Sheets authentication
