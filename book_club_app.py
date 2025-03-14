@@ -39,7 +39,7 @@ st.markdown(
         background-color: #ffcccc;  /* Light red background */
         color: black;  /* Text color */
     }
-        .main {
+    .main {
         background-color: #5dade2;  /* Same or different color */
     }
     /* Change background color and text color of text input */
