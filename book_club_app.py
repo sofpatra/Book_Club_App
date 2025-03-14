@@ -1,40 +1,59 @@
 import streamlit as st
+import gspread
+from oauth2client.service_account import ServiceAccountCredentials
 import pandas as pd
 from collections import defaultdict
+
+# Google Sheets authentication
+def connect_to_gsheet():
+    scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
+    creds = ServiceAccountCredentials.from_json_keyfile_name("elegant-cipher-453701-r9-52215a8082e7.json", scope)
+    client = gspread.authorize(creds)
+    return client
+
+# Load the Google Sheet
+client = connect_to_gsheet()
+
+# Open the spreadsheet by name
+spreadsheet = client.open("BookClub")
+
+# Access 'Books' sheet
+books_sheet = spreadsheet.worksheet("Books")
+# Access 'Movies' sheet
+movies_sheet = spreadsheet.worksheet("Movies")
+
+bookvotes_sheet = spreadsheet.worksheet("BookVotes")
+movievotes_sheet = spreadsheet.worksheet("MovieVotes")
 
 st.title("📚 Read & Sip Book and Movie Club")
 st.markdown(
     """
     <style>
-    /* Change background color of the whole app */
-    body {
-        background-color: #507bc7;  /* Blue background */
+    .stSelectbox > div > div > div {
+        background-color: #ffcccc;  /* Light red background */
+        color: black;  /* Text color */
     }
-
+        .main {
+        background-color: #5dade2;  /* Same or different color */
+    }
     /* Change background color and text color of text input */
     .stTextInput input {
         background-color: pink;
         font-size: 18px;
         color: red;
     }
-
-    /* Optional: Change the background of the sidebar */
-    .css-1d391kg {
-        background-color: #507bc7;
+    .stdataframe {
+        background-color: lightpink;  /* Background color */
+        color: black;  /* Text color */
     }
+
+
     </style>
     """,
     unsafe_allow_html=True
 )
 # Sidebar for navigation
 page = st.sidebar.radio("Go to", ["Submit Book Suggestions", "Submit Movie Suggestions", "Vote on Books", "Vote on Movies", "View Results"])
-
-# Store book suggestions
-if "books" not in st.session_state:
-    st.session_state.books = []
-
-if "movies" not in st.session_state:
-    st.session_state.movies = []
 
 # Page 1: Book Suggestions
 if page == "Submit Book Suggestions":
@@ -45,7 +64,8 @@ if page == "Submit Book Suggestions":
         submit_button = st.form_submit_button("Submit")
         if submit_button:
             if title and author:
-                st.session_state.books.append(f"{title} by {author}")
+                # Append to Google Sheet (Books)
+                books_sheet.append_row([title, author])
                 st.success("Book submitted!")
             else:
                 st.error("Please enter both title and author.")
@@ -55,66 +75,77 @@ elif page == "Submit Movie Suggestions":
     title = st.text_input("Movie Title")
     if st.button("Submit"):
         if title:
-            st.session_state.movies.append(title)
+            #Append to Google Sheet (Movies)
+            movies_sheet.append_row([title])
             st.success("Movie submitted!")
         else:
             st.error("Please enter a movie title.")
 # Page 3: Ranked Choice Voting
 elif page == "Vote on Books":
     st.header("Rank Your Favorite Books")
-    if not st.session_state.books:
+    books = books_sheet.get_all_records()
+    if not books:
         st.warning("No books submitted yet.")
     else:
         ranked_votes = []
-        options = st.session_state.books.copy()
+        options = [book["Book Title"] for book in books] # Assuming the column name is "Book Title"
         rank_1 = st.selectbox("1st Choice", options, key="rank1")
         options.remove(rank_1)
         rank_2 = st.selectbox("2nd Choice", options, key="rank2")
-        options.remove(rank_2)
+
         rank_3 = st.selectbox("3rd Choice", options, key="rank3")
+
         rank_4 = st.selectbox("4th Choice", options, key="rank4")
+
         rank_5 = st.selectbox("5th Choice", options, key="rank5")
         
         if st.button("Submit Vote"):
-            ranked_votes.append([rank_1, rank_2, rank_3, rank_4, rank_5])
+            ranked_votes = [rank_1, rank_2, rank_3, rank_4, rank_5]
             if "bookvotes" not in st.session_state:
                 st.session_state.bookvotes = []
-            st.session_state.bookvotes.append([rank_1, rank_2, rank_3, rank_4, rank_5])
+            st.session_state.bookvotes.append(ranked_votes)
+            #Save to Google Sheet
+            bookvotes_sheet.append_row([rank_1, rank_2, rank_3, rank_4, rank_5])
             st.success("Vote submitted!")
+
 # Page 4: Ranked Choice Voting
 elif page == "Vote on Movies":
     st.header("Rank Your Favorite Movies")
-    if not st.session_state.movies:
+    movies = movies_sheet.get_all_records()
+    if not movies:
         st.warning("No movies submitted yet.")
     else:
         ranked_votes = []
-        options = st.session_state.movies.copy()
+        options = [movie["Movie Title"] for movie in movies] # Assuming the column name is "Movie Title"
         rank_1 = st.selectbox("1st Choice", options, key="rank1")
         options.remove(rank_1)
         rank_2 = st.selectbox("2nd Choice", options, key="rank2")
-        options.remove(rank_2)
+
         rank_3 = st.selectbox("3rd Choice", options, key="rank3")
+
         rank_4 = st.selectbox("4th Choice", options, key="rank4")
+
         rank_5 = st.selectbox("5th Choice", options, key="rank5")
         
         if st.button("Submit Vote"):
-            ranked_votes.append([rank_1, rank_2, rank_3, rank_4, rank_5])
-            if "movievotes" not in st.session_state:
-                st.session_state.movievotes = []
-            st.session_state.movievotes.append([rank_1, rank_2, rank_3, rank_4, rank_5])
+            movievotes_sheet.append_row([rank_1, rank_2, rank_3, rank_4, rank_5])
             st.success("Vote submitted!")
 # Page 5: View Results
 elif page == "View Results":
     st.header("Results")
-    if "bookvotes" not in st.session_state or not st.session_state.bookvotes:
+    books = books_sheet.get_all_records()
+    book_votes = bookvotes_sheet.get_all_records()
+
+    if not book_votes:
         st.warning("No book votes submitted yet.")
     else:
         # Weighted ranking system: 1st choice = 5 points, 2nd choice = 4 points, 3rd choice = 3 points, etc.
         weights = {0: 5, 1: 4, 2: 3, 3: 2, 4: 1}
         scores = defaultdict(int)
-        for vote in st.session_state.bookvotes:
-            for rank, book in enumerate(vote):
-                scores[book] += weights.get(rank, 0)
+        for vote in book_votes:
+            for rank, book in enumerate(vote.values()):
+                if book != "NA" and book:
+                    scores[book] += weights.get(rank, 0)
         
         # Convert results to a DataFrame
         results_df = pd.DataFrame(scores.items(), columns=["Book", "Score"])
@@ -125,15 +156,20 @@ elif page == "View Results":
         # Announce the winner
         winner = results_df.iloc[0, 0]
         st.success(f"🏆 The winning book is: ***{winner}***!")
-    if "movievotes" not in st.session_state or not st.session_state.movievotes:
-            st.warning("No movie votes submitted yet.")
+
+    # Movie results
+    movies = movies_sheet.get_all_records()
+    movie_votes = movievotes_sheet.get_all_records()
+    if not movie_votes:
+        st.warning("No movie votes submitted yet.")
     else:
         # Weighted ranking system: 1st choice = 5 points, 2nd choice = 4 points, 3rd choice = 3 points, etc.
         weights = {0: 5, 1: 4, 2: 3, 3: 2, 4: 1}
         scores = defaultdict(int)
-        for vote in st.session_state.movievotes:
-            for rank, movie in enumerate(vote):
-                scores[movie] += weights.get(rank, 0)
+        for vote in movie_votes:
+            for rank, movie in enumerate(vote.values()):
+                if movie != "NA" and movie:
+                    scores[movie] += weights.get(rank, 0)
         
         # Convert results to a DataFrame
         results_df = pd.DataFrame(scores.items(), columns=["Movie", "Score"])
