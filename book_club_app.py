@@ -3,7 +3,29 @@ import pandas as pd
 from collections import defaultdict
 
 st.title("📚 Read & Sip Book and Movie Club")
+st.markdown(
+    """
+    <style>
+    /* Change background color of the whole app */
+    body {
+        background-color: #507bc7;  /* Blue background */
+    }
 
+    /* Change background color and text color of text input */
+    .stTextInput input {
+        background-color: pink;
+        font-size: 18px;
+        color: red;
+    }
+
+    /* Optional: Change the background of the sidebar */
+    .css-1d391kg {
+        background-color: #507bc7;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
 # Sidebar for navigation
 page = st.sidebar.radio("Go to", ["Submit Book Suggestions", "Submit Movie Suggestions", "Vote on Books", "Vote on Movies", "View Results"])
 
