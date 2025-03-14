@@ -48,8 +48,8 @@ st.markdown(
         font-size: 18px;
         color: red;
     }
-    .stdataframe {
-        background-color: lightpink;  /* Background color */
+    .sttable {
+        background-color: lightblue;  /* Background color */
         color: black;  /* Text color */
     }
 
