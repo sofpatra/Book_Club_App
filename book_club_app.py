@@ -5,17 +5,26 @@ from oauth2client.service_account import ServiceAccountCredentials
 import pandas as pd
 from collections import defaultdict
 
-
-# Load credentials from Streamlit secrets
-credentials_info = json.loads(st.secrets["GOOGLE_SHEET_CREDENTIALS"]["credentials"])
-
-# Google Sheets authentication
 # Google Sheets authentication
 def connect_to_gsheet():
     scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
-    creds = ServiceAccountCredentials.from_json_keyfile_dict(credentials_info, scope)
+    creds = ServiceAccountCredentials.from_json_keyfile_name("elegant-cipher-453701-r9-52215a8082e7.json", scope)
     client = gspread.authorize(creds)
     return client
+
+
+
+
+# # Load credentials from Streamlit secrets
+# credentials_info = json.loads(st.secrets["GOOGLE_SHEET_CREDENTIALS"]["credentials"])
+
+# Google Sheets authentication
+# # Google Sheets authentication
+# def connect_to_gsheet():
+#     scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
+#     creds = ServiceAccountCredentials.from_json_keyfile_dict(credentials_info, scope)
+#     client = gspread.authorize(creds)
+#     return client
 
 # Load the Google Sheet
 client = connect_to_gsheet()
@@ -64,28 +73,47 @@ page = st.sidebar.radio("Go to", ["Submit Book Suggestions", "Submit Movie Sugge
 # Page 1: Book Suggestions
 if page == "Submit Book Suggestions":
     st.header("📖 Suggest a Book")
+    #Fetch the current book suggestions
+    books = books_sheet.get_all_records()
+    books_df = pd.DataFrame(books)
     with st.form(key="book_form"):
         title = st.text_input("Book Title")
         author = st.text_input("Author")
+        suggester = st.text_input("Your Name")
         submit_button = st.form_submit_button("Submit")
         if submit_button:
             if title and author:
                 # Append to Google Sheet (Books)
-                books_sheet.append_row([title, author])
+                books_sheet.append_row([title, author, suggester])
                 st.success("Book submitted!")
             else:
                 st.error("Please enter both title and author.")
+        # Display existing book suggestions in a table
+    if not books_df.empty:
+        st.subheader("📚 Current Book Suggestions")
+        st.table(books_df)
+    else:
+        st.info("No books have been suggested yet. Be the first to add one!")
 # Page 2: Movie Suggestions
 elif page == "Submit Movie Suggestions":
     st.header("Suggest a Movie")
+    movies = movies_sheet.get_all_records()
+    movies_df = pd.DataFrame(movies)
     title = st.text_input("Movie Title")
+    suggester = st.text_input("Your Name")
     if st.button("Submit"):
         if title:
             #Append to Google Sheet (Movies)
-            movies_sheet.append_row([title])
+            movies_sheet.append_row([title, suggester])
             st.success("Movie submitted!")
         else:
             st.error("Please enter a movie title.")
+    # Display existing movie suggestions in a table
+    if not movies_df.empty:
+        st.subheader("🎬 Current Movie Suggestions")
+        st.table(movies_df)
+    else:
+        st.info("No movies have been suggested yet. Be the first to add one!")
 # Page 3: Ranked Choice Voting
 elif page == "Vote on Books":
     st.header("Rank Your Favorite Books")
