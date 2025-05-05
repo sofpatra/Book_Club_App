@@ -34,6 +34,12 @@ st.title("📚 Read & Sip Book and Movie Club")
 st.markdown(
     """
     <style>
+    .stApp {
+        background-image: url('https://mobileimages.lowes.com/product/converted/034878/034878981024.jpg'); /* Replace with your image URL */
+        background-size: cover;
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+    }
     .stSelectbox > div > div > div {
         background-color: #ffcccc;  /* Light red background */
         color: black;  /* Text color */
@@ -51,8 +57,6 @@ st.markdown(
         background-color: lightblue;  /* Background color */
         color: black;  /* Text color */
     }
-
-
     </style>
     """,
     unsafe_allow_html=True
