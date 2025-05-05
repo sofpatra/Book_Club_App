@@ -35,7 +35,7 @@ st.markdown(
     """
     <style>
     .stApp {
-        background-image: url('https://mobileimages.lowes.com/product/converted/034878/034878981024.jpg'); /* Replace with your image URL */
+        background-image: url('static/background.jpg'); /* Replace with your image URL */
         background-size: cover;
         background-repeat: no-repeat;
         background-attachment: fixed;
