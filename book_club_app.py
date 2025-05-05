@@ -61,8 +61,8 @@ st.markdown(
 page = st.sidebar.radio("Go to", ["Submit Book Suggestions", "Submit Movie Suggestions", "Vote on Books", "Vote on Movies", "View Results"])
 
 # Page 1: Book Suggestions
-if page == "Submit Book Suggestions!":
-    st.header("📖 Suggest a Book")
+if page == "Submit Book Suggestions":
+    st.header("📖 Suggest a NEW Book")
     #Fetch the current book suggestions
     books = books_sheet.get_all_records()
     books_df = pd.DataFrame(books)
