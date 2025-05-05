@@ -160,8 +160,8 @@ elif page == "View Results":
     books = books_sheet.get_all_records()
     book_votes = bookvotes_sheet.get_all_records()
 
-    if not book_votes:
-        st.warning("No book votes submitted yet.")
+    if len(book_votes) < 7:
+        st.warning("Results will be displayed once ALL 7 women have voted for books.")
     else:
         # Weighted ranking system: 1st choice = 5 points, 2nd choice = 4 points, 3rd choice = 3 points, etc.
         weights = {0: 5, 1: 4, 2: 3, 3: 2, 4: 1}
@@ -184,8 +184,8 @@ elif page == "View Results":
     # Movie results
     movies = movies_sheet.get_all_records()
     movie_votes = movievotes_sheet.get_all_records()
-    if not movie_votes:
-        st.warning("No movie votes submitted yet.")
+    if len(movie_votes) < 7:
+        st.warning("Results will be displayed once ALL 7 women have voted for movies.")
     else:
         # Weighted ranking system: 1st choice = 5 points, 2nd choice = 4 points, 3rd choice = 3 points, etc.
         weights = {0: 5, 1: 4, 2: 3, 3: 2, 4: 1}
