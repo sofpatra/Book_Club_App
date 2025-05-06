@@ -35,7 +35,7 @@ st.markdown(
     """
     <style>
     .stApp {
-        background-image: url('static/2.png'); /* Replace with your image URL */
+        background-image: url('https://i.imgur.com/qX5mnZX.jpeg'); /* Replace with a valid hosted image URL */
         background-size: cover;
         background-repeat: no-repeat;
         background-attachment: fixed;
@@ -58,6 +58,7 @@ st.markdown(
         color: black;  /* Text color */
     }
     </style>
+    <div class="stApp"></div> <!-- Ensure the background applies to the app -->
     """,
     unsafe_allow_html=True
 )
