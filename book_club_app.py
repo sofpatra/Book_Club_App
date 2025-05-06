@@ -35,7 +35,7 @@ st.markdown(
     """
     <style>
     .stApp {
-        background-image: url('static/background.jpg'); /* Replace with your image URL */
+        background-image: url('static/2.png'); /* Replace with your image URL */
         background-size: cover;
         background-repeat: no-repeat;
         background-attachment: fixed;
